@@ -83,6 +83,11 @@ async def register(
             request, "register.html", {"error": "Email already registered."}
         )
 
+    if len(password.encode('utf-8')) > 72:
+        return templates.TemplateResponse(
+            request, "register.html", {"error": "Password too long (max 72 characters)."}
+        )
+
     user = User(
         name=name,
         email=email,
@@ -111,6 +116,12 @@ async def login(
     db: Session = Depends(get_db),
 ):
     email_clean = email.strip().lower()
+    
+    if len(password.encode('utf-8')) > 72:
+        return templates.TemplateResponse(
+            request, "login.html", {"error": "Password too long (max 72 characters)."}
+        )
+
     user = db.query(User).filter(User.email == email_clean).first()
     if not user or not pwd_context.verify(password, user.password_hash):
         return templates.TemplateResponse(
