@@ -18,6 +18,11 @@ def seed():
     print("Seeding database with fake data...")
     hashed_pwd = pwd_context.hash('password123')
     
+    # 0. Create Global Admin
+    admin_user = User(name="Global Administrator", email="admin@learnbridge.com", password_hash=hashed_pwd, role=UserRole.ADMIN)
+    db.add(admin_user)
+    db.commit()
+    
     # 1. Create Teachers
     teachers = []
     teacher_data = [

@@ -19,7 +19,7 @@ from database import engine, Base
 # Import all models so Base.metadata registers them
 import models  # noqa: F401
 
-from routers import auth, teacher, student, chat
+from routers import auth, teacher, student, chat, admin
 
 # ── Create App ───────────────────────────────────────────────────
 
@@ -39,6 +39,7 @@ app.include_router(auth.router)
 app.include_router(teacher.router)
 app.include_router(student.router)
 app.include_router(chat.router)
+app.include_router(admin.router)
 
 # ── Create tables on startup ────────────────────────────────────
 

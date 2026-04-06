@@ -13,6 +13,7 @@ class UserRole(str, enum.Enum):
     """Allowed user roles."""
     TEACHER = "teacher"
     STUDENT = "student"
+    ADMIN = "admin"
 
 
 class User(Base):

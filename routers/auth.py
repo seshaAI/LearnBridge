@@ -56,6 +56,8 @@ async def login_page(request: Request, db: Session = Depends(get_db)):
     if user:
         if user.role == UserRole.TEACHER:
             return RedirectResponse("/teacher/dashboard", status_code=303)
+        elif user.role == UserRole.ADMIN:
+            return RedirectResponse("/admin/dashboard", status_code=303)
         return RedirectResponse("/student/dashboard", status_code=303)
     return templates.TemplateResponse(request, "login.html", {"error": None})
 
@@ -108,16 +110,20 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).filter(User.email == email).first()
+    email_clean = email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
     if not user or not pwd_context.verify(password, user.password_hash):
         return templates.TemplateResponse(
             request, "login.html", {"error": "Invalid email or password."}
         )
 
     token = create_access_token({"user_id": user.id, "role": user.role.value})
-    redirect_url = (
-        "/teacher/dashboard" if user.role == UserRole.TEACHER else "/student/dashboard"
-    )
+    if user.role == UserRole.TEACHER:
+        redirect_url = "/teacher/dashboard"
+    elif user.role == UserRole.ADMIN:
+        redirect_url = "/admin/dashboard"
+    else:
+        redirect_url = "/student/dashboard"
     response = RedirectResponse(redirect_url, status_code=303)
     response.set_cookie(
         key="access_token", value=token, httponly=True,

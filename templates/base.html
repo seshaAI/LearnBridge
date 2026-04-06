@@ -46,19 +46,25 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
-                <a href="{% if user.role.value == 'teacher' %}/teacher/dashboard{% else %}/student/dashboard{% endif %}" class="flex items-center gap-2 group">
+                <a href="{% if user.role.value == 'teacher' %}/teacher/dashboard{% elif user.role.value == 'admin' %}/admin/dashboard{% else %}/student/dashboard{% endif %}" class="flex items-center gap-2 group">
                     <img src="/static/images/logo.svg" alt="LearnBridge" class="w-9 h-9 rounded-xl shadow-lg group-hover:scale-105 transition-transform">
                     <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-accent-400 bg-clip-text text-transparent">LearnBridge</span>
                 </a>
 
                 <!-- Nav Links -->
                 <div class="hidden md:flex items-center gap-1">
-                    {% if user.role.value == 'teacher' %}
+                    {% if user.role.value == 'admin' %}
+                    <a href="/admin/dashboard" class="nav-link">Observer Deck</a>
+                    <a href="/chat/inbox" class="nav-link relative">
+                        Messages
+                        <span id="nav-unread-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"></span>
+                    </a>
+                    {% elif user.role.value == 'teacher' %}
                     <a href="/teacher/dashboard" class="nav-link">Dashboard</a>
                     <a href="/teacher/courses" class="nav-link">My Courses</a>
                     <a href="/teacher/browse" class="nav-link">Browse</a>
                     <a href="/teacher/students" class="nav-link">Students</a>
-                    <a href="/chat" class="nav-link relative">
+                    <a href="/chat/inbox" class="nav-link relative">
                         Messages
                         <span id="nav-unread-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"></span>
                     </a>
@@ -67,7 +73,7 @@
                     <a href="/student/courses" class="nav-link">Browse</a>
                     <a href="/student/leaderboard" class="nav-link">Leaderboard</a>
                     <a href="/student/profile" class="nav-link">Profile</a>
-                    <a href="/chat" class="nav-link relative">
+                    <a href="/chat/inbox" class="nav-link relative">
                         Messages
                         <span id="nav-unread-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"></span>
                     </a>

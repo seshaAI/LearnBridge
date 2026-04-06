@@ -28,7 +28,7 @@ def _require_user(request: Request, db: Session = Depends(get_db)):
 
 # ── Inbox ─────────────────────────────────────────────────────────────
 
-@router.get("", response_class=HTMLResponse)
+@router.get("/inbox", response_class=HTMLResponse)
 async def inbox(
     request: Request,
     db: Session = Depends(get_db),

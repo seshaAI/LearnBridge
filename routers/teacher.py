@@ -493,19 +493,6 @@ async def browse_all_courses(
     })
 
 
-@router.post("/courses/{course_id}/enroll")
-async def teacher_enroll(
-    course_id: int,
-    db: Session = Depends(get_db),
-    user: User = Depends(_require_teacher),
-):
-    existing = db.query(Enrollment).filter(
-        Enrollment.student_id == user.id, Enrollment.course_id == course_id
-    ).first()
-    if not existing:
-        db.add(Enrollment(student_id=user.id, course_id=course_id))
-        db.commit()
-    return RedirectResponse(f"/teacher/browse", status_code=303)
 
 
 # ── Appoint Representative ───────────────────────────────────────────
