@@ -4,7 +4,7 @@ Teachers create courses; users enroll; teachers can appoint representatives.
 """
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from database import Base
 
 
@@ -15,7 +15,7 @@ class Course(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    is_published = Column(Integer, default=0)  # 1 = has final quiz, ready for students
+    is_published = Column(Boolean, default=False)  # has final quiz, ready for students
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime,
@@ -30,7 +30,7 @@ class Enrollment(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
-    completed = Column(Integer, default=0)  # 1 = passed final quiz
+    completed = Column(Boolean, default=False)  # passed final quiz
     enrolled_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 

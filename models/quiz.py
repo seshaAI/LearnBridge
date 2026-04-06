@@ -3,7 +3,7 @@ Quiz models — per-lesson quizzes and course-level final quizzes.
 """
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, JSON, Boolean
 from database import Base
 
 
@@ -27,7 +27,7 @@ class QuizAttempt(Base):
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False)
     selected_answer = Column(Integer, nullable=False)
-    is_correct = Column(Integer, default=0)
+    is_correct = Column(Boolean, default=False)
     completed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
@@ -53,5 +53,5 @@ class FinalQuizAttempt(Base):
     final_quiz_id = Column(Integer, ForeignKey("final_quizzes.id"), nullable=False)
     score = Column(Integer, default=0)  # percentage
     points_earned = Column(Integer, default=0)
-    passed = Column(Integer, default=0)  # 1 = passed
+    passed = Column(Boolean, default=False)
     completed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
