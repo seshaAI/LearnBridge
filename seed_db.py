@@ -58,7 +58,7 @@ def seed():
     q_python1 = Quiz(question="What is print() used for?", options=["Outputting data", "Inputting data", "Deleting data", "Nothing"], correct_answer=0, points=20, lesson_id=l_python1.id)
     db.add(q_python1)
     
-    fq_python = FinalQuiz(course_id=c_python.id, title="Python Final Exam", passing_score=50, questions=[
+    fq_python = FinalQuiz(course_id=c_python.id, title="Python Final Exam", passing_score=50, created_by=admin_user.id, questions=[
         {"question": "How do you comment in Python?", "options": ["//", "/*", "#", "--"], "correct_answer": 2, "points": 50},
         {"question": "Which of these is a list?", "options": ["{}", "()", "[]", "<>"], "correct_answer": 2, "points": 50}
     ])
@@ -73,7 +73,7 @@ def seed():
     db.add(l_finance1)
     db.commit()
     
-    fq_finance = FinalQuiz(course_id=c_finance.id, title="Finance Final Exam", passing_score=100, questions=[
+    fq_finance = FinalQuiz(course_id=c_finance.id, title="Finance Final Exam", passing_score=100, created_by=admin_user.id, questions=[
         {"question": "What is the primary purpose of a budget?", "options": ["A plan for eating", "A plan for spending and saving", "A bank description", "A type of loan"], "correct_answer": 1, "points": 100}
     ])
     db.add(fq_finance)
@@ -87,7 +87,7 @@ def seed():
     db.add(l_maths1)
     db.commit()
     
-    fq_maths = FinalQuiz(course_id=c_maths.id, title="Calculus Final Exam", passing_score=100, questions=[
+    fq_maths = FinalQuiz(course_id=c_maths.id, title="Calculus Final Exam", passing_score=100, created_by=admin_user.id, questions=[
         {"question": "What is the derivative of x^2?", "options": ["x", "2x", "x^3/3", "1"], "correct_answer": 1, "points": 100}
     ])
     db.add(fq_maths)
