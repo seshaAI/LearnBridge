@@ -58,7 +58,7 @@ def _check_and_award_badges(student_id: int, db: Session):
 
     # Count courses completed (passed final quiz)
     courses_completed = db.query(Enrollment).filter(
-        Enrollment.student_id == student_id, Enrollment.completed == 1
+        Enrollment.student_id == student_id, Enrollment.completed == True
     ).count()
 
     stats = {
@@ -117,7 +117,7 @@ async def dashboard(
             "total_lessons": total_lessons,
             "watched_lessons": watched_lessons,
             "progress": progress,
-            "completed": enrollment.completed == 1,
+            "completed": enrollment.completed == True,
             "has_final_quiz": has_final,
         })
 
@@ -237,7 +237,7 @@ async def view_course(
         ).first()
         if attempt:
             final_quiz_attempted = True
-            final_quiz_passed = attempt.passed == 1
+            final_quiz_passed = attempt.passed == True
 
     all_watched = watched_count >= total_lessons and total_lessons > 0
 
@@ -252,7 +252,7 @@ async def view_course(
         "final_quiz_passed": final_quiz_passed,
         "final_quiz_attempted": final_quiz_attempted,
         "all_watched": all_watched,
-        "course_completed": enrollment.completed == 1,
+        "course_completed": enrollment.completed == True,
     })
 
 
