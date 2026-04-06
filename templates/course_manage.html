@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Manage Courses — LearnBridge{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+    <div>
+        <h1 class="text-3xl font-bold">My Courses</h1>
+        <p class="theme-text-secondary mt-1">Create and manage your course content</p>
+    </div>
+    <button onclick="document.getElementById('create-modal').classList.remove('hidden')" class="btn-primary" id="create-course-btn">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        New Course
+    </button>
+</div>
+
+<!-- Courses Grid -->
+{% if courses %}
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 animate-slide-up">
+    {% for course in courses %}
+    <div class="glass-card overflow-hidden group hover:border-primary-500/30 transition-all">
+        <!-- Color bar -->
+        <div class="h-1.5 bg-gradient-to-r from-primary-500 via-purple-500 to-accent-500"></div>
+        <div class="p-5">
+            <h3 class="text-lg font-semibold group-hover:text-primary-400 transition-colors line-clamp-1">{{ course.title }}</h3>
+            <p class="text-sm theme-text-secondary mt-2 line-clamp-2 min-h-[2.5rem]">{{ course.description or 'No description provided' }}</p>
+
+            <div class="flex items-center gap-4 mt-4 text-xs theme-text-secondary">
+                <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    {{ course.lesson_count }} lessons
+                </span>
+                <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/></svg>
+                    {{ course.student_count }} students
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2 mt-4 pt-4 border-t border-white/5">
+                <a href="/teacher/courses/{{ course.id }}" class="flex-1 btn-secondary text-center text-sm py-2">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    View
+                </a>
+                <form method="POST" action="/teacher/courses/{{ course.id }}/delete" onsubmit="return confirm('Delete this course and all its lessons?')">
+                    <button type="submit" class="p-2 rounded-lg theme-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="glass-card p-12 text-center animate-slide-up">
+    <div class="text-6xl mb-4">📚</div>
+    <h2 class="text-xl font-semibold mb-2">No courses yet</h2>
+    <p class="theme-text-secondary mb-6">Create your first course and start adding lessons!</p>
+    <button onclick="document.getElementById('create-modal').classList.remove('hidden')" class="btn-primary inline-flex">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Create Your First Course
+    </button>
+</div>
+{% endif %}
+
+<!-- Create Course Modal -->
+<div id="create-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('create-modal').classList.add('hidden')"></div>
+    <div class="relative w-full max-w-lg glass-card p-6 animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Create New Course</h2>
+            <button onclick="document.getElementById('create-modal').classList.add('hidden')" class="p-1 rounded-lg hover:bg-white/10 transition-colors">
+                <svg class="w-5 h-5 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form method="POST" action="/teacher/courses" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Course Title</label>
+                <input type="text" name="title" required class="form-input" placeholder="e.g. Introduction to Python">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Description</label>
+                <textarea name="description" rows="3" class="form-input" placeholder="What will students learn?"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('create-modal').classList.add('hidden')" class="btn-secondary flex-1">Cancel</button>
+                <button type="submit" class="btn-primary flex-1">Create Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

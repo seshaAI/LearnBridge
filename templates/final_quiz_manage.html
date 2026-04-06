@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Final Quiz — {{ course.title }} — LearnBridge{% endblock %}
+
+{% block back_button %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <a href="/teacher/courses/{{ course.id }}" class="inline-flex items-center gap-2 text-sm theme-text-secondary hover:theme-text transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to Course
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">📝 Final Quiz Builder</h1>
+    <p class="theme-text-secondary mb-8">Course: <strong>{{ course.title }}</strong> — Students must pass this quiz to complete the course.</p>
+
+    <div class="glass-card p-6 mb-6">
+        <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium theme-text-secondary mb-1">Quiz Title</label>
+                <input type="text" id="quiz-title" value="{{ final_quiz.title if final_quiz else 'Final Exam' }}"
+                       class="w-full px-4 py-2.5 rounded-xl theme-input border theme-border focus:border-primary-500 outline-none text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium theme-text-secondary mb-1">Passing Score (%)</label>
+                <input type="number" id="passing-score" value="{{ final_quiz.passing_score if final_quiz else 60 }}" min="1" max="100"
+                       class="w-full px-4 py-2.5 rounded-xl theme-input border theme-border focus:border-primary-500 outline-none text-sm">
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Container -->
+    <div id="questions-container" class="space-y-4 mb-6"></div>
+
+    <!-- Add Question Button -->
+    <button onclick="addQuestion()"
+            class="w-full py-3 rounded-xl border-2 border-dashed theme-border hover:border-primary-500/50 theme-text-secondary hover:theme-text transition-all flex items-center justify-center gap-2 font-medium mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Question
+    </button>
+
+    <!-- Save Button -->
+    <button onclick="saveFinalQuiz()"
+            class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold hover:shadow-lg hover:shadow-primary-500/25 transition-all active:scale-[0.98]">
+        💾 Save Final Quiz
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let questionCount = 0;
+const courseId = {{ course.id }};
+
+function addQuestion(q = null) {
+    questionCount++;
+    const idx = questionCount;
+    const container = document.getElementById('questions-container');
+    const div = document.createElement('div');
+    div.className = 'glass-card p-5 question-card';
+    div.id = `q-${idx}`;
+    div.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Question ${idx}</h3>
+            <button onclick="this.closest('.question-card').remove()" class="text-red-400 hover:text-red-300 text-sm">Remove</button>
+        </div>
+        <input type="text" class="q-text w-full px-4 py-2.5 rounded-xl theme-input border theme-border focus:border-primary-500 outline-none text-sm mb-3" placeholder="Enter question..." value="${q ? q.question : ''}">
+        <div class="grid sm:grid-cols-2 gap-2 mb-3">
+            <input type="text" class="q-opt px-3 py-2 rounded-lg theme-input border theme-border text-sm" placeholder="Option A" value="${q ? q.options[0] : ''}">
+            <input type="text" class="q-opt px-3 py-2 rounded-lg theme-input border theme-border text-sm" placeholder="Option B" value="${q ? q.options[1] : ''}">
+            <input type="text" class="q-opt px-3 py-2 rounded-lg theme-input border theme-border text-sm" placeholder="Option C" value="${q ? q.options[2] : ''}">
+            <input type="text" class="q-opt px-3 py-2 rounded-lg theme-input border theme-border text-sm" placeholder="Option D" value="${q ? q.options[3] : ''}">
+        </div>
+        <div class="grid sm:grid-cols-2 gap-2">
+            <div>
+                <label class="text-xs theme-text-secondary">Correct Answer (0-3)</label>
+                <input type="number" class="q-correct w-full px-3 py-2 rounded-lg theme-input border theme-border text-sm" min="0" max="3" value="${q ? q.correct_answer : 0}">
+            </div>
+            <div>
+                <label class="text-xs theme-text-secondary">Points</label>
+                <input type="number" class="q-points w-full px-3 py-2 rounded-lg theme-input border theme-border text-sm" min="1" value="${q ? q.points : 10}">
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+async function saveFinalQuiz() {
+    const cards = document.querySelectorAll('.question-card');
+    if (cards.length === 0) {
+        showToast('Add at least one question', 'error');
+        return;
+    }
+    const questions = [];
+    for (const card of cards) {
+        const text = card.querySelector('.q-text').value.trim();
+        const opts = [...card.querySelectorAll('.q-opt')].map(i => i.value.trim());
+        const correct = parseInt(card.querySelector('.q-correct').value);
+        const pts = parseInt(card.querySelector('.q-points').value) || 10;
+        if (!text || opts.some(o => !o)) {
+            showToast('Fill in all fields for every question', 'error');
+            return;
+        }
+        questions.push({question: text, options: opts, correct_answer: correct, points: pts});
+    }
+
+    const title = document.getElementById('quiz-title').value.trim() || 'Final Exam';
+    const passing_score = parseInt(document.getElementById('passing-score').value) || 60;
+
+    try {
+        const r = await fetch(`/teacher/courses/${courseId}/final-quiz`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({questions, title, passing_score}),
+        });
+        const data = await r.json();
+        if (data.status === 'saved') {
+            showToast('Final quiz saved! Course is now published.', 'success');
+            setTimeout(() => window.location.href = `/teacher/courses/${courseId}`, 1500);
+        } else {
+            showToast(data.error || 'Error saving quiz', 'error');
+        }
+    } catch(e) {
+        showToast('Network error', 'error');
+    }
+}
+
+// Load existing questions
+{% if final_quiz %}
+const existingQs = {{ final_quiz.questions | tojson }};
+existingQs.forEach(q => addQuestion(q));
+{% endif %}
+</script>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Register — LearnBridge{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+
+    <!-- Background decoration -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-accent-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay:2s"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo -->
+        <div class="text-center mb-8 animate-fade-in">
+            <img src="/static/images/logo.svg" alt="LearnBridge" class="w-16 h-16 mx-auto mb-4 rounded-2xl shadow-2xl shadow-primary-500/30">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-500 via-accent-400 to-primary-400 bg-clip-text text-transparent">Join LearnBridge</h1>
+            <p class="theme-text-secondary mt-2">Start your learning adventure today</p>
+        </div>
+
+        <!-- Card -->
+        <div class="glass-card p-8 animate-slide-up">
+            {% if error %}
+            <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/auth/register" class="space-y-5" id="register-form">
+                <div>
+                    <label for="name" class="block text-sm font-medium theme-text-secondary mb-1.5">Full Name</label>
+                    <input type="text" id="name" name="name" required
+                        class="form-input"
+                        placeholder="John Doe">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium theme-text-secondary mb-1.5">Email Address</label>
+                    <input type="email" id="email" name="email" required
+                        class="form-input"
+                        placeholder="you@example.com">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium theme-text-secondary mb-1.5">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6"
+                        class="form-input"
+                        placeholder="••••••••">
+                </div>
+
+                <!-- Role Selection -->
+                <div>
+                    <label class="block text-sm font-medium theme-text-secondary mb-3">I am a…</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="role-card group" id="role-student-card">
+                            <input type="radio" name="role" value="student" class="hidden peer" checked>
+                            <div class="role-card-inner peer-checked:border-primary-500 peer-checked:bg-primary-500/10 peer-checked:shadow-lg peer-checked:shadow-primary-500/10">
+                                <div class="text-3xl mb-2">🎓</div>
+                                <div class="font-semibold text-sm">Student</div>
+                                <div class="text-xs theme-text-secondary mt-1">Learn & earn points</div>
+                            </div>
+                        </label>
+                        <label class="role-card group" id="role-teacher-card">
+                            <input type="radio" name="role" value="teacher" class="hidden peer">
+                            <div class="role-card-inner peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:shadow-lg peer-checked:shadow-amber-500/10">
+                                <div class="text-3xl mb-2">👨‍🏫</div>
+                                <div class="font-semibold text-sm">Teacher</div>
+                                <div class="text-xs theme-text-secondary mt-1">Create & manage</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary w-full" id="register-btn">
+                    Create Account
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="theme-text-secondary text-sm">
+                    Already have an account?
+                    <a href="/auth/login" class="text-primary-400 hover:text-primary-300 font-medium transition-colors">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

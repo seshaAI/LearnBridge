@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Final Quiz: {{ course.title }} — LearnBridge{% endblock %}
+
+{% block back_button %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <a href="/student/courses/{{ course.id }}" class="inline-flex items-center gap-2 text-sm theme-text-secondary hover:theme-text transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to Course
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">📝 {{ final_quiz.title }}</h1>
+    <p class="theme-text-secondary mb-2">Course: <strong>{{ course.title }}</strong></p>
+    <p class="text-sm theme-text-secondary mb-8">Pass with at least <strong class="text-primary-400">{{ final_quiz.passing_score }}%</strong> to complete the course.</p>
+
+    {% if previous_attempt %}
+    <!-- Already Attempted -->
+    <div class="glass-card p-8 text-center mb-6 {% if previous_attempt.passed %}border-green-500/30{% else %}border-red-500/30{% endif %}">
+        {% if previous_attempt.passed %}
+        <div class="text-5xl mb-4">🎉</div>
+        <h2 class="text-2xl font-bold text-green-400 mb-2">Passed!</h2>
+        {% else %}
+        <div class="text-5xl mb-4">😞</div>
+        <h2 class="text-2xl font-bold text-red-400 mb-2">Not Passed</h2>
+        {% endif %}
+        <p class="theme-text-secondary">Your score: <strong class="text-xl {% if previous_attempt.passed %}text-green-400{% else %}text-red-400{% endif %}">{{ previous_attempt.score }}%</strong></p>
+        <p class="text-sm theme-text-secondary mt-2">Points earned: {{ previous_attempt.points_earned }}</p>
+    </div>
+    {% else %}
+    <!-- Quiz Form -->
+    <div id="quiz-questions" class="space-y-6 mb-8">
+        {% for q in final_quiz.questions %}
+        <div class="glass-card p-6 question-card" data-idx="{{ loop.index0 }}">
+            <h3 class="font-semibold mb-4">
+                <span class="text-primary-400">Q{{ loop.index }}.</span> {{ q.question }}
+                <span class="text-xs theme-text-secondary ml-2">({{ q.points }} pts)</span>
+            </h3>
+            <div class="space-y-2">
+                {% for opt in q.options %}
+                <label class="flex items-center gap-3 p-3 rounded-xl border theme-border hover:border-primary-500/30 cursor-pointer transition-all theme-hover-bg">
+                    <input type="radio" name="q{{ loop.parent.loop.index0 }}" value="{{ loop.index0 }}" class="accent-primary-500 w-4 h-4">
+                    <span class="text-sm">{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button onclick="submitFinalQuiz()" id="submit-btn"
+            class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold hover:shadow-lg hover:shadow-primary-500/25 transition-all active:scale-[0.98]">
+        🚀 Submit Final Quiz
+    </button>
+
+    <!-- Results (hidden initially) -->
+    <div id="result-card" class="hidden glass-card p-8 text-center mt-6"></div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if not previous_attempt %}
+<script>
+const courseId = {{ course.id }};
+const totalQs = {{ final_quiz.questions|length }};
+
+async function submitFinalQuiz() {
+    const answers = {};
+    let unanswered = false;
+    for (let i = 0; i < totalQs; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) { unanswered = true; break; }
+        answers[String(i)] = parseInt(selected.value);
+    }
+    if (unanswered) {
+        showToast('Please answer all questions', 'error');
+        return;
+    }
+
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').textContent = 'Submitting...';
+
+    try {
+        const r = await fetch(`/student/courses/${courseId}/final-quiz`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({answers}),
+        });
+        const data = await r.json();
+        document.getElementById('submit-btn').classList.add('hidden');
+
+        const resultCard = document.getElementById('result-card');
+        resultCard.classList.remove('hidden');
+
+        if (data.passed) {
+            resultCard.innerHTML = `
+                <div class="text-5xl mb-4">🎉</div>
+                <h2 class="text-2xl font-bold text-green-400 mb-2">Congratulations! You Passed!</h2>
+                <p class="theme-text-secondary">Score: <strong class="text-xl text-green-400">${data.score}%</strong></p>
+                <p class="text-sm theme-text-secondary mt-1">${data.correct_count}/${data.total_questions} correct — +${data.points_earned} points</p>
+                <a href="/student/courses/${courseId}" class="inline-block mt-4 px-6 py-2 rounded-xl bg-green-500/20 text-green-400 font-medium hover:bg-green-500/30 transition-colors">Back to Course</a>
+            `;
+        } else {
+            resultCard.innerHTML = `
+                <div class="text-5xl mb-4">😞</div>
+                <h2 class="text-2xl font-bold text-red-400 mb-2">Not Passed</h2>
+                <p class="theme-text-secondary">Score: <strong class="text-xl text-red-400">${data.score}%</strong></p>
+                <p class="text-sm theme-text-secondary mt-1">${data.correct_count}/${data.total_questions} correct — +${data.points_earned} points</p>
+                <a href="/student/courses/${courseId}" class="inline-block mt-4 px-6 py-2 rounded-xl bg-red-500/20 text-red-400 font-medium hover:bg-red-500/30 transition-colors">Back to Course</a>
+            `;
+        }
+    } catch(e) {
+        showToast('Network error', 'error');
+        document.getElementById('submit-btn').disabled = false;
+        document.getElementById('submit-btn').textContent = '🚀 Submit Final Quiz';
+    }
+}
+</script>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Messages — LearnBridge{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold">💬 Messages</h1>
+            <p class="theme-text-secondary text-sm mt-1">Chat with teachers and students</p>
+        </div>
+        <!-- New Chat Button -->
+        <button onclick="document.getElementById('new-chat-modal').classList.toggle('hidden')"
+                class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-primary-500/25 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New Chat
+        </button>
+    </div>
+
+    <!-- Conversations List -->
+    {% if conversations %}
+    <div class="space-y-2">
+        {% for conv in conversations %}
+        <a href="/chat/{{ conv.partner.id }}" class="glass-card p-4 flex items-center gap-4 hover:border-primary-500/30 transition-all block">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-lg font-bold text-white shrink-0">
+                {{ conv.partner.name[0]|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold">{{ conv.partner.name }}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full {% if conv.partner.role.value == 'teacher' %}bg-amber-500/20 text-amber-400{% else %}bg-primary-500/20 text-primary-400{% endif %} font-semibold uppercase">{{ conv.partner.role.value }}</span>
+                </div>
+                <p class="text-sm theme-text-secondary truncate mt-0.5">
+                    {% if conv.is_mine %}You: {% endif %}{{ conv.last_message }}
+                </p>
+            </div>
+            <div class="text-right shrink-0">
+                {% if conv.unread > 0 %}
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-500 text-white text-xs font-bold">{{ conv.unread }}</span>
+                {% endif %}
+                <div class="text-xs theme-text-secondary mt-1">{{ conv.last_time.strftime('%b %d') if conv.last_time else '' }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-12 text-center">
+        <div class="text-6xl mb-4">📭</div>
+        <h3 class="text-xl font-semibold mb-2">No conversations yet</h3>
+        <p class="theme-text-secondary">Start a new chat to connect with others!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- New Chat Modal -->
+<div id="new-chat-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="glass-card p-6 w-full max-w-md max-h-[70vh] flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Start New Chat</h2>
+            <button onclick="document.getElementById('new-chat-modal').classList.add('hidden')" class="p-1 rounded-lg theme-hover-bg theme-text-secondary hover:theme-text">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <input type="text" id="user-search" placeholder="Search users..." oninput="filterUsers(this.value)"
+               class="w-full px-4 py-2.5 rounded-xl theme-input border theme-border focus:border-primary-500 outline-none mb-3 text-sm">
+        <div class="overflow-y-auto flex-1 space-y-1" id="user-list">
+            {% for u in all_users %}
+            <a href="/chat/{{ u.id }}" class="user-item flex items-center gap-3 p-3 rounded-xl theme-hover-bg transition-all" data-name="{{ u.name|lower }}">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-sm font-bold text-white">{{ u.name[0]|upper }}</div>
+                <div>
+                    <div class="font-medium text-sm">{{ u.name }}</div>
+                    <div class="text-xs theme-text-secondary">{{ u.role.value|title }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterUsers(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('.user-item').forEach(el => {
+        el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
+

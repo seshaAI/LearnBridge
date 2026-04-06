@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "E:\New folder\lms_project\seed_db.py", line 4, in <module>
+    from models.user import Role
+ImportError: cannot import name 'Role' from 'models.user' (E:\New folder\lms_project\models\user.py)

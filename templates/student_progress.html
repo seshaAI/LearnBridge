@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Student Progress — LearnBridge{% endblock %}
+
+{% block content %}
+<div class="mb-8 animate-fade-in">
+    <h1 class="text-3xl font-bold">Student Progress</h1>
+    <p class="theme-text-secondary mt-1">Track your students' performance across all courses</p>
+</div>
+
+{% if students %}
+<div class="glass-card overflow-hidden animate-slide-up">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="text-left p-4 text-sm font-semibold text-surface-300">Rank</th>
+                    <th class="text-left p-4 text-sm font-semibold text-surface-300">Student</th>
+                    <th class="text-left p-4 text-sm font-semibold text-surface-300">Email</th>
+                    <th class="text-right p-4 text-sm font-semibold text-surface-300">Points</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for id, name, email, pts in students %}
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="p-4">
+                        {% if loop.index == 1 %}
+                        <span class="text-lg">🥇</span>
+                        {% elif loop.index == 2 %}
+                        <span class="text-lg">🥈</span>
+                        {% elif loop.index == 3 %}
+                        <span class="text-lg">🥉</span>
+                        {% else %}
+                        <span class="text-sm theme-text-secondary font-medium">#{{ loop.index }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold">{{ name[0]|upper }}</div>
+                            <span class="font-medium">{{ name }}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-sm theme-text-secondary">{{ email }}</td>
+                    <td class="p-4 text-right">
+                        <span class="font-bold {% if loop.index <= 3 %}text-amber-400{% else %}text-surface-200{% endif %}">{{ pts or 0 }}</span>
+                        <span class="text-xs theme-text-secondary ml-1">pts</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="glass-card p-12 text-center animate-slide-up">
+    <div class="text-6xl mb-4">👥</div>
+    <h2 class="text-xl font-semibold mb-2">No students yet</h2>
+    <p class="theme-text-secondary">Students will appear here once they enroll in your courses.</p>
+</div>
+{% endif %}
+{% endblock %}
+

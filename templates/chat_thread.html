@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ partner.name }} — LearnBridge{% endblock %}
+
+{% block back_button %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <a href="/chat" class="inline-flex items-center gap-2 text-sm theme-text-secondary hover:theme-text transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to Messages
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto flex flex-col" style="height: calc(100vh - 10rem);">
+    <!-- Chat Header -->
+    <div class="glass-card p-4 flex items-center gap-3 mb-3 shrink-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-lg font-bold text-white">{{ partner.name[0]|upper }}</div>
+        <div>
+            <div class="font-semibold">{{ partner.name }}</div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full {% if partner.role.value == 'teacher' %}bg-amber-500/20 text-amber-400{% else %}bg-primary-500/20 text-primary-400{% endif %} font-semibold uppercase">{{ partner.role.value }}</span>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 px-2 py-3 scroll-smooth">
+        {% if not messages %}
+        <div class="text-center py-12">
+            <div class="text-4xl mb-3">👋</div>
+            <p class="theme-text-secondary">Start the conversation!</p>
+        </div>
+        {% endif %}
+        {% for msg in messages %}
+        <div class="flex {% if msg.sender_id == user.id %}justify-end{% else %}justify-start{% endif %}">
+            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm {% if msg.sender_id == user.id %}bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-br-md{% else %}theme-card border theme-border rounded-bl-md{% endif %}">
+                <p>{{ msg.content }}</p>
+                <div class="text-[10px] mt-1 {% if msg.sender_id == user.id %}text-white/60{% else %}theme-text-secondary{% endif %}">{{ msg.created_at.strftime('%I:%M %p') if msg.created_at else '' }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Input -->
+    <div class="glass-card p-3 shrink-0 mt-2">
+        <div class="flex gap-2">
+            <input type="text" id="msg-input" placeholder="Type a message..."
+                   class="flex-1 px-4 py-2.5 rounded-xl theme-input border theme-border focus:border-primary-500 outline-none text-sm"
+                   onkeydown="if(event.key==='Enter')sendMsg()">
+            <button onclick="sendMsg()"
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold hover:shadow-lg transition-all flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                Send
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const partnerId = {{ partner.id }};
+const chatDiv = document.getElementById('chat-messages');
+chatDiv.scrollTop = chatDiv.scrollHeight;
+
+async function sendMsg() {
+    const input = document.getElementById('msg-input');
+    const content = input.value.trim();
+    if (!content) return;
+    input.value = '';
+
+    // Optimistic UI
+    const bubble = document.createElement('div');
+    bubble.className = 'flex justify-end';
+    bubble.innerHTML = `<div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-br-md"><p>${escapeHtml(content)}</p><div class="text-[10px] mt-1 text-white/60">Just now</div></div>`;
+    chatDiv.appendChild(bubble);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+
+    try {
+        await fetch(`/chat/${partnerId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content}),
+        });
+    } catch(e) { console.error(e); }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Poll for new messages every 5s
+setInterval(async () => {
+    try {
+        const r = await fetch(`/chat/${partnerId}`);
+        // Simple refresh approach for new messages
+    } catch(e) {}
+}, 10000);
+</script>
+{% endblock %}
+

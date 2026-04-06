@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LearnBridge{% endblock %}
+
+{% block content %}
+<!-- Welcome & Points Banner -->
+<div class="mb-8 animate-fade-in">
+    <div class="glass-card p-6 bg-gradient-to-br from-primary-500/10 via-transparent to-accent-500/10 border-primary-500/20">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold">Hey, <span class="bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">{{ user.name }}</span>! 🎉</h1>
+                <p class="theme-text-secondary mt-1">Keep up the great work on your learning journey</p>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ total_points }}</div>
+                    <div class="text-xs theme-text-secondary font-medium">Total Points</div>
+                </div>
+                <div class="w-px h-10 bg-white/10"></div>
+                <div class="text-center">
+                    <div class="text-3xl font-black text-primary-400">#{{ rank }}</div>
+                    <div class="text-xs theme-text-secondary font-medium">Rank</div>
+                </div>
+                <div class="w-px h-10 bg-white/10"></div>
+                <div class="text-center">
+                    <div class="text-3xl font-black text-accent-400">{{ badges|length }}</div>
+                    <div class="text-xs theme-text-secondary font-medium">Badges</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-slide-up">
+    <a href="/student/courses" class="stat-card group cursor-pointer hover:border-primary-500/30">
+        <div class="stat-icon bg-primary-500/20 text-primary-400 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <div class="mt-3">
+            <div class="text-sm font-semibold text-primary-400 group-hover:text-primary-300">Browse Courses</div>
+            <div class="text-xs theme-text-secondary">Find new courses</div>
+        </div>
+    </a>
+    <a href="/student/leaderboard" class="stat-card group cursor-pointer hover:border-amber-500/30">
+        <div class="stat-icon bg-amber-500/20 text-amber-400 group-hover:scale-110 transition-transform">
+            <span class="text-xl">🏆</span>
+        </div>
+        <div class="mt-3">
+            <div class="text-sm font-semibold text-amber-400 group-hover:text-amber-300">Leaderboard</div>
+            <div class="text-xs theme-text-secondary">See rankings</div>
+        </div>
+    </a>
+    <a href="/student/profile" class="stat-card group cursor-pointer hover:border-accent-500/30">
+        <div class="stat-icon bg-accent-500/20 text-accent-400 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <div class="mt-3">
+            <div class="text-sm font-semibold text-accent-400 group-hover:text-accent-300">My Profile</div>
+            <div class="text-xs theme-text-secondary">Points & badges</div>
+        </div>
+    </a>
+    <div class="stat-card">
+        <div class="stat-icon bg-purple-500/20 text-purple-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <div class="mt-3">
+            <div class="text-2xl font-bold">{{ courses_data|length }}</div>
+            <div class="text-xs theme-text-secondary">Enrolled Courses</div>
+        </div>
+    </div>
+</div>
+
+<!-- Badges Quick View -->
+{% if badges %}
+<div class="mb-8 animate-slide-up" style="animation-delay:0.05s">
+    <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="text-xl">🏅</span> My Badges
+    </h2>
+    <div class="flex flex-wrap gap-2">
+        {% for badge in badges %}
+        <div class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center gap-2 group hover:scale-105 transition-transform">
+            <span class="text-lg">{{ badge_rules[badge]['icon'] if badge in badge_rules else '🏅' }}</span>
+            <span class="text-sm font-medium text-amber-300">{{ badge }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Enrolled Courses -->
+<div class="animate-slide-up" style="animation-delay:0.1s">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            My Courses
+        </h2>
+        <a href="/student/courses" class="text-sm text-primary-400 hover:text-primary-300 transition-colors">Browse more →</a>
+    </div>
+
+    {% if courses_data %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for item in courses_data %}
+        <a href="/student/courses/{{ item.course.id }}" class="glass-card overflow-hidden group hover:border-primary-500/30 transition-all">
+            <div class="h-1.5 bg-gradient-to-r from-primary-500 to-accent-500"></div>
+            <div class="p-5">
+                <h3 class="font-semibold group-hover:text-primary-400 transition-colors line-clamp-1">{{ item.course.title }}</h3>
+                <p class="text-sm theme-text-secondary mt-1 line-clamp-2 min-h-[2.5rem]">{{ item.course.description or 'No description' }}</p>
+
+                <!-- Progress -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="theme-text-secondary">Progress</span>
+                        <span class="font-semibold {% if item.progress == 100 %}text-green-400{% else %}text-primary-400{% endif %}">{{ item.progress }}%</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500 {% if item.progress == 100 %}bg-gradient-to-r from-green-500 to-emerald-400{% else %}bg-gradient-to-r from-primary-500 to-accent-500{% endif %}" style="width: {{ item.progress }}%"></div>
+                    </div>
+                    <div class="text-xs theme-text-secondary mt-1">{{ item.watched_lessons }}/{{ item.total_lessons }} lessons</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-12 text-center">
+        <div class="text-6xl mb-4">🔍</div>
+        <h2 class="text-xl font-semibold mb-2">No courses yet</h2>
+        <p class="theme-text-secondary mb-6">Start exploring and enroll in courses to begin learning!</p>
+        <a href="/student/courses" class="btn-primary inline-flex">
+            Browse Courses
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

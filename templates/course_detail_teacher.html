@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — LearnBridge{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="mb-8 animate-fade-in">
+    <a href="/teacher/courses" class="inline-flex items-center gap-1 text-sm theme-text-secondary hover:text-primary-400 transition-colors mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to Courses
+    </a>
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold">{{ course.title }}</h1>
+            <p class="theme-text-secondary mt-1">{{ course.description or 'No description' }}</p>
+        </div>
+        <div class="flex gap-2 shrink-0">
+            <button onclick="document.getElementById('edit-course-modal').classList.remove('hidden')" class="btn-secondary">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Edit
+            </button>
+            {% if course.teacher_id == user.id %}
+            <form method="POST" action="/teacher/courses/{{ course.id }}/delete" onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
+                <button type="submit" class="btn-secondary text-red-400 hover:text-red-300 hover:border-red-500/50">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Delete
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid lg:grid-cols-3 gap-6">
+    <!-- Main Content: Lessons -->
+    <div class="lg:col-span-2 space-y-4 animate-slide-up">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Lessons ({{ lessons|length }})
+            </h2>
+            <button onclick="document.getElementById('add-lesson-modal').classList.remove('hidden')" class="btn-primary text-sm py-2 px-4" id="add-lesson-btn">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Add Lesson
+            </button>
+        </div>
+
+        {% if lessons %}
+        {% for lesson in lessons %}
+        <div class="glass-card p-5 hover:border-primary-500/20 transition-all">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center text-sm font-bold text-primary-400 shrink-0">{{ loop.index }}</span>
+                    <div>
+                        <h3 class="font-semibold">{{ lesson.title }}</h3>
+                        <p class="text-xs theme-text-secondary mt-1 break-all">{{ lesson.video_url }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <form method="POST" action="/teacher/lessons/{{ lesson.id }}/delete" onsubmit="return confirm('Delete this lesson?')">
+                        <button type="submit" class="p-1.5 rounded-lg theme-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete lesson">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quizzes for this lesson -->
+            {% if lesson.quizzes %}
+            <div class="mt-4 pt-4 border-t border-white/5">
+                <h4 class="text-sm font-medium text-surface-300 mb-2 flex items-center gap-1">
+                    <span class="text-sm">🧩</span> Quizzes ({{ lesson.quizzes|length }})
+                </h4>
+                <div class="space-y-2">
+                    {% for quiz in lesson.quizzes %}
+                    <div class="flex items-start justify-between gap-2 p-3 rounded-lg bg-white/5">
+                        <div class="text-sm">
+                            <p class="font-medium">{{ quiz.question }}</p>
+                            <div class="flex flex-wrap gap-2 mt-1.5">
+                                {% for opt in quiz.options %}
+                                <span class="text-xs px-2 py-0.5 rounded-full {% if loop.index0 == quiz.correct_answer %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-white/5 theme-text-secondary{% endif %}">{{ opt }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <form method="POST" action="/teacher/quizzes/{{ quiz.id }}/delete" onsubmit="return confirm('Delete this quiz?')">
+                            <button type="submit" class="p-1 theme-text-secondary hover:text-red-400 transition-colors" title="Delete quiz">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Add Quiz Button -->
+            <div class="mt-3">
+                <button onclick="openQuizModal({{ lesson.id }})" class="text-xs text-primary-400 hover:text-primary-300 transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Add Quiz
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="glass-card p-8 text-center">
+            <div class="text-4xl mb-3">🎬</div>
+            <p class="theme-text-secondary">No lessons yet. Add your first lesson!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar: Enrolled Students -->
+    <div class="animate-slide-up" style="animation-delay:0.1s">
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/></svg>
+                Enrolled Students ({{ enrolled_students|length }})
+            </h2>
+            {% if enrolled_students %}
+            <div class="space-y-2">
+                {% for st in enrolled_students %}
+                <div class="flex items-center gap-3 p-2.5 rounded-lg bg-white/5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold">{{ st.name[0]|upper }}</div>
+                    <div class="min-w-0">
+                        <div class="text-sm font-medium truncate">{{ st.name }}</div>
+                        <div class="text-xs theme-text-secondary truncate">{{ st.email }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="theme-text-secondary text-sm text-center py-4">No students enrolled yet</p>
+            {% endif %}
+        </div>
+
+        <!-- Final Quiz Section -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                📝 Final Quiz
+            </h2>
+            {% if final_quiz %}
+            <p class="text-sm theme-text-secondary mb-2">"{{ final_quiz.title }}" — {{ final_quiz.questions|length }} questions, {{ final_quiz.passing_score }}% to pass</p>
+            <a href="/teacher/courses/{{ course.id }}/final-quiz" class="btn-primary text-sm py-2 px-4 inline-flex">Edit Final Quiz</a>
+            {% else %}
+            <p class="theme-text-secondary text-sm mb-3">No final quiz yet. Students need a final quiz to complete this course.</p>
+            <a href="/teacher/courses/{{ course.id }}/final-quiz" class="btn-primary text-sm py-2 px-4 inline-flex">Create Final Quiz</a>
+            {% endif %}
+        </div>
+
+        <!-- Representatives -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">👥 Representatives</h2>
+            {% if representatives %}
+            <div class="space-y-2 mb-4">
+                {% for rep in representatives %}
+                <div class="flex items-center justify-between p-2.5 rounded-lg bg-white/5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold text-white">{{ rep.name[0]|upper }}</div>
+                        <span class="text-sm font-medium">{{ rep.name }}</span>
+                    </div>
+                    <form method="POST" action="/teacher/courses/{{ course.id }}/representative/{{ rep.id }}/remove">
+                        <button type="submit" class="text-xs text-red-400 hover:text-red-300">Remove</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if all_teachers %}
+            <form method="POST" action="/teacher/courses/{{ course.id }}/representative" class="flex gap-2">
+                <select name="user_id" class="form-input flex-1 text-sm">
+                    {% for t in all_teachers %}
+                    <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-primary text-sm py-2 px-3">Add</button>
+            </form>
+            {% else %}
+            <p class="theme-text-secondary text-sm">No other teachers available</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div id="edit-course-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('edit-course-modal').classList.add('hidden')"></div>
+    <div class="relative w-full max-w-lg glass-card p-6 animate-slide-up">
+        <h2 class="text-xl font-bold mb-6">Edit Course</h2>
+        <form method="POST" action="/teacher/courses/{{ course.id }}/update" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Course Title</label>
+                <input type="text" name="title" required class="form-input" value="{{ course.title }}">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Description</label>
+                <textarea name="description" rows="3" class="form-input">{{ course.description or '' }}</textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('edit-course-modal').classList.add('hidden')" class="btn-secondary flex-1">Cancel</button>
+                <button type="submit" class="btn-primary flex-1">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Lesson Modal -->
+<div id="add-lesson-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('add-lesson-modal').classList.add('hidden')"></div>
+    <div class="relative w-full max-w-lg glass-card p-6 animate-slide-up">
+        <h2 class="text-xl font-bold mb-6">Add New Lesson</h2>
+        <form action="/teacher/courses/{{ course.id }}/lessons" method="POST" class="space-y-4" enctype="multipart/form-data">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium theme-text-secondary mb-1">Lesson Title</label>
+                    <input type="text" name="title" required class="form-input w-full" placeholder="e.g. Introduction">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium theme-text-secondary mb-1">Order (Number)</label>
+                    <input type="number" name="order" value="{{ lessons|length + 1 }}" class="form-input w-full">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium theme-text-secondary mb-1">Video URL (YouTube, Vimeo, MP4, etc.)</label>
+                <input type="text" name="video_url" class="form-input w-full" placeholder="https://youtube.com/...">
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-semibold theme-text-secondary text-center">OR</span>
+            </div>
+            <div>
+                <label class="block text-sm font-medium theme-text-secondary mb-1">Upload Video File</label>
+                <input type="file" name="video_file" accept="video/*" class="form-input w-full pt-1.5 pb-2 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-500/20 file:text-primary-400 hover:file:bg-primary-500/30">
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('add-lesson-modal').classList.add('hidden')" class="btn-secondary flex-1">Cancel</button>
+                <button type="submit" class="btn-primary flex-1">Add Lesson</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Quiz Modal -->
+<div id="add-quiz-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('add-quiz-modal').classList.add('hidden')"></div>
+    <div class="relative w-full max-w-lg glass-card p-6 animate-slide-up">
+        <h2 class="text-xl font-bold mb-6">Add Quiz Question</h2>
+        <form id="quiz-form" method="POST" action="" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Question</label>
+                <input type="text" name="question" required class="form-input" placeholder="What is the output of print(1+1)?">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-surface-300 mb-1">Option A</label>
+                    <input type="text" name="option_a" required class="form-input">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-surface-300 mb-1">Option B</label>
+                    <input type="text" name="option_b" required class="form-input">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-surface-300 mb-1">Option C</label>
+                    <input type="text" name="option_c" required class="form-input">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-surface-300 mb-1">Option D</label>
+                    <input type="text" name="option_d" required class="form-input">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-surface-300 mb-1.5">Correct Answer</label>
+                <select name="correct_answer" class="form-input">
+                    <option value="0">Option A</option>
+                    <option value="1">Option B</option>
+                    <option value="2">Option C</option>
+                    <option value="3">Option D</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('add-quiz-modal').classList.add('hidden')" class="btn-secondary flex-1">Cancel</button>
+                <button type="submit" class="btn-primary flex-1">Add Quiz</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function openQuizModal(lessonId) {
+    document.getElementById('quiz-form').action = `/teacher/lessons/${lessonId}/quizzes`;
+    document.getElementById('add-quiz-modal').classList.remove('hidden');
+}
+</script>
+{% endblock %}
+{% endblock %}
+

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}My Profile — LearnBridge{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Profile Header -->
+    <div class="glass-card p-8 mb-8 bg-gradient-to-br from-primary-500/10 via-transparent to-accent-500/10 border-primary-500/20 animate-fade-in">
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-4xl font-black shadow-2xl shadow-primary-500/30 ring-4 ring-primary-500/20">{{ user.name[0]|upper }}</div>
+            <div class="text-center sm:text-left">
+                <h1 class="text-2xl font-bold">{{ user.name }}</h1>
+                <p class="theme-text-secondary text-sm">{{ user.email }}</p>
+                <div class="flex items-center gap-4 mt-3">
+                    <span class="px-3 py-1 rounded-full bg-primary-500/20 text-primary-400 text-xs font-semibold">🎓 Student</span>
+                    <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-semibold">Rank #{{ rank }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 animate-slide-up">
+        <div class="glass-card p-5 text-center">
+            <div class="text-3xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ total_points }}</div>
+            <div class="text-xs theme-text-secondary mt-1 font-medium">Total Points</div>
+        </div>
+        <div class="glass-card p-5 text-center">
+            <div class="text-3xl font-black text-primary-400">{{ videos_watched }}</div>
+            <div class="text-xs theme-text-secondary mt-1 font-medium">Videos Watched</div>
+        </div>
+        <div class="glass-card p-5 text-center">
+            <div class="text-3xl font-black text-accent-400">{{ quizzes_completed }}</div>
+            <div class="text-xs theme-text-secondary mt-1 font-medium">Quizzes Done</div>
+        </div>
+        <div class="glass-card p-5 text-center">
+            <div class="text-3xl font-black text-purple-400">{{ courses_enrolled }}</div>
+            <div class="text-xs theme-text-secondary mt-1 font-medium">Courses</div>
+        </div>
+    </div>
+
+    <!-- Badges Section -->
+    <div class="glass-card p-6 animate-slide-up" style="animation-delay:0.1s">
+        <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+            <span class="text-2xl">🏅</span> Badges & Achievements
+        </h2>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+            {% for badge_name, rule in badge_rules.items() %}
+            <div class="flex items-center gap-4 p-4 rounded-xl border transition-all
+                {% if badge_name in badges %}
+                    bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20 shadow-lg shadow-amber-500/5
+                {% else %}
+                    bg-white/5 border-white/5 opacity-50
+                {% endif %}">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl
+                    {% if badge_name in badges %}bg-amber-500/20{% else %}bg-white/10 grayscale{% endif %}">
+                    {{ rule.icon }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-sm {% if badge_name in badges %}text-amber-300{% else %}theme-text-secondary{% endif %}">{{ badge_name }}</div>
+                    <div class="text-xs {% if badge_name in badges %}text-amber-400/70{% else %}text-surface-500{% endif %} mt-0.5">{{ rule.desc }}</div>
+                </div>
+                {% if badge_name in badges %}
+                <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {% else %}
+                <svg class="w-5 h-5 text-surface-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

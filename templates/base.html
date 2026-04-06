@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LearnBridge — A modern learning management system with gamification.">
+    <title>{% block title %}LearnBridge{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:   { 50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a' },
+                        accent:    { 50:'#ecfeff',100:'#cffafe',200:'#a5f3fc',300:'#67e8f9',400:'#22d3ee',500:'#06b6d4',600:'#0891b2',700:'#0e7490',800:'#155e75',900:'#164e63' },
+                        surface:   { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- Google Fonts — Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    {% block head %}{% endblock %}
+</head>
+<body class="font-sans min-h-screen antialiased theme-bg theme-text transition-colors duration-300">
+
+    <!-- ─── Toast Container ─────────────────────────────────── -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- ─── Navigation ──────────────────────────────────────── -->
+    {% if user %}
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b theme-nav-border theme-nav backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{% if user.role.value == 'teacher' %}/teacher/dashboard{% else %}/student/dashboard{% endif %}" class="flex items-center gap-2 group">
+                    <img src="/static/images/logo.svg" alt="LearnBridge" class="w-9 h-9 rounded-xl shadow-lg group-hover:scale-105 transition-transform">
+                    <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-accent-400 bg-clip-text text-transparent">LearnBridge</span>
+                </a>
+
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-1">
+                    {% if user.role.value == 'teacher' %}
+                    <a href="/teacher/dashboard" class="nav-link">Dashboard</a>
+                    <a href="/teacher/courses" class="nav-link">My Courses</a>
+                    <a href="/teacher/browse" class="nav-link">Browse</a>
+                    <a href="/teacher/students" class="nav-link">Students</a>
+                    <a href="/chat" class="nav-link relative">
+                        Messages
+                        <span id="nav-unread-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"></span>
+                    </a>
+                    {% else %}
+                    <a href="/student/dashboard" class="nav-link">Dashboard</a>
+                    <a href="/student/courses" class="nav-link">Browse</a>
+                    <a href="/student/leaderboard" class="nav-link">Leaderboard</a>
+                    <a href="/student/profile" class="nav-link">Profile</a>
+                    <a href="/chat" class="nav-link relative">
+                        Messages
+                        <span id="nav-unread-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"></span>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Right: Theme + User + Logout -->
+                <div class="flex items-center gap-2">
+                    <!-- Theme Switcher -->
+                    <div class="relative" id="theme-dropdown">
+                        <button onclick="toggleThemeDropdown()" class="p-2 rounded-lg theme-text-secondary hover:theme-text transition-all theme-hover-bg" title="Change theme">
+                            <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                        </button>
+                        <div id="theme-menu" class="hidden absolute right-0 mt-2 w-40 rounded-xl shadow-2xl theme-card border theme-border overflow-hidden z-50">
+                            <button onclick="setTheme('dark')" class="w-full px-4 py-2.5 text-left text-sm font-medium theme-text hover:bg-primary-500/10 flex items-center gap-2 transition-colors">
+                                <span>🌙</span> Dark
+                            </button>
+                            <button onclick="setTheme('light')" class="w-full px-4 py-2.5 text-left text-sm font-medium theme-text hover:bg-primary-500/10 flex items-center gap-2 transition-colors">
+                                <span>☀️</span> Light
+                            </button>
+                            <button onclick="setTheme('aqua')" class="w-full px-4 py-2.5 text-left text-sm font-medium theme-text hover:bg-primary-500/10 flex items-center gap-2 transition-colors">
+                                <span>🌊</span> Aqua Depth
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <a href="/auth/settings" class="p-2 rounded-lg theme-text-secondary hover:theme-text transition-all theme-hover-bg" title="Settings">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </a>
+
+                    <!-- User Badge -->
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full theme-card-subtle border theme-border">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-[10px] font-bold text-white">{{ user.name[0]|upper }}</div>
+                        <span class="text-sm font-medium theme-text-secondary">{{ user.name }}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-full {% if user.role.value == 'teacher' %}bg-amber-500/20 text-amber-400{% else %}bg-primary-500/20 text-primary-400{% endif %} font-semibold uppercase tracking-wider">{{ user.role.value }}</span>
+                    </div>
+
+                    <!-- Logout -->
+                    <a href="/auth/logout" class="p-2 rounded-lg theme-text-secondary hover:theme-text transition-all theme-hover-bg" title="Logout">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav -->
+        <div class="md:hidden border-t theme-border px-4 pb-3 pt-2 flex gap-1 overflow-x-auto">
+            {% if user.role.value == 'teacher' %}
+            <a href="/teacher/dashboard" class="nav-link-mobile">Dashboard</a>
+            <a href="/teacher/courses" class="nav-link-mobile">Courses</a>
+            <a href="/teacher/browse" class="nav-link-mobile">Browse</a>
+            <a href="/teacher/students" class="nav-link-mobile">Students</a>
+            <a href="/chat" class="nav-link-mobile">Chat</a>
+            {% else %}
+            <a href="/student/dashboard" class="nav-link-mobile">Dashboard</a>
+            <a href="/student/courses" class="nav-link-mobile">Browse</a>
+            <a href="/student/leaderboard" class="nav-link-mobile">Board</a>
+            <a href="/student/profile" class="nav-link-mobile">Profile</a>
+            <a href="/chat" class="nav-link-mobile">Chat</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="h-16"></div><!-- Spacer for fixed nav -->
+    {% endif %}
+
+    <!-- ─── Back Button ───────────────────────────────────────── -->
+    {% block back_button %}{% endblock %}
+
+    <!-- ─── Main Content ──────────────────────────────────────── -->
+    <main class="{% if user %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endif %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ─── Scripts ─────────────────────────────────────────── -->
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+

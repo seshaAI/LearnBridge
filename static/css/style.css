@@ -1,0 +1,274 @@
+/* ═══════════════════════════════════════════════════════════════════
+   LearnBridge — Theme System & Custom Styles
+   Three themes: Dark, Light, Aqua Depth
+   Uses CSS custom properties for runtime theming
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Theme: Dark (default) ────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg-primary: #020617;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.08);
+  --bg-input: rgba(255,255,255,0.06);
+  --bg-nav: rgba(2,6,23,0.80);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
+  --shadow-glow: rgba(15,118,110,0.15);
+  --card-glass: rgba(255,255,255,0.03);
+}
+
+/* ── Theme: Light ─────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-primary: #f8fffe;
+  --bg-card: rgba(255,255,255,0.85);
+  --bg-card-hover: rgba(255,255,255,0.95);
+  --bg-input: rgba(255,255,255,0.9);
+  --bg-nav: rgba(248,255,254,0.90);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: rgba(15,118,110,0.12);
+  --border-hover: rgba(15,118,110,0.25);
+  --shadow-glow: rgba(15,118,110,0.08);
+  --card-glass: rgba(255,255,255,0.7);
+}
+
+/* ── Theme: Aqua Depth ─────────────────────────────────────────── */
+[data-theme="aqua"] {
+  --bg-primary: #042f2e;
+  --bg-card: rgba(15,118,110,0.12);
+  --bg-card-hover: rgba(15,118,110,0.20);
+  --bg-input: rgba(15,118,110,0.10);
+  --bg-nav: rgba(4,47,46,0.85);
+  --text-primary: #ccfbf1;
+  --text-secondary: #5eead4;
+  --border-color: rgba(34,211,238,0.15);
+  --border-hover: rgba(34,211,238,0.30);
+  --shadow-glow: rgba(34,211,238,0.15);
+  --card-glass: rgba(15,118,110,0.08);
+}
+
+/* ── Utility classes mapped to CSS vars ────────────────────────────── */
+.theme-bg         { background-color: var(--bg-primary); }
+.theme-text       { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-card       { background-color: var(--bg-card); }
+.theme-card-subtle { background-color: var(--bg-card); }
+.theme-input      { background-color: var(--bg-input); color: var(--text-primary); }
+.theme-border     { border-color: var(--border-color); }
+.theme-nav        { background-color: var(--bg-nav); }
+.theme-nav-border { border-color: var(--border-color); }
+.theme-hover-bg:hover { background-color: var(--bg-card-hover); }
+
+/* ── Glass Card ───────────────────────────────────────────────────── */
+.glass-card {
+  background: var(--card-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.glass-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 8px 32px var(--shadow-glow);
+}
+
+/* ── Nav Links ────────────────────────────────────────────────────── */
+.nav-link {
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+
+.nav-link-mobile {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.nav-link-mobile:hover {
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+
+/* ── Form Inputs ──────────────────────────────────────────────────── */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s;
+}
+.form-input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15,118,110,0.15);
+}
+.form-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #0f766e, #22d3ee);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 24px rgba(15,118,110,0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
+/* ── Stat Cards ───────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--card-glass);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+.stat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 8px 32px var(--shadow-glow);
+}
+.stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Role Cards (register) ────────────────────────────────────────── */
+.role-card { cursor: pointer; }
+.role-card-inner {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  text-align: center;
+  transition: all 0.2s;
+}
+.role-card-inner:hover { border-color: var(--border-hover); }
+
+/* ── Progress Bar ─────────────────────────────────────────────────── */
+.progress-bar {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0f766e, #22d3ee);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Animations ───────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.05); }
+}
+
+.animate-fade-in   { animation: fade-in 0.5s ease-out both; }
+.animate-slide-up  { animation: slide-up 0.6s ease-out both; }
+.animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
+
+/* ── Toast Notifications ──────────────────────────────────────────── */
+.toast {
+  padding: 0.875rem 1.25rem;
+  border-radius: 0.75rem;
+  backdrop-filter: blur(16px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slide-in-right 0.4s ease-out;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+.toast-success { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+.toast-error   { background: rgba(239,68,68,0.2);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; }
+.toast-info    { background: rgba(34,211,238,0.2);  border: 1px solid rgba(34,211,238,0.3);  color: #22d3ee; }
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* ── Light theme overrides for Tailwind components ────────────────── */
+[data-theme="light"] .glass-card {
+  background: rgba(255,255,255,0.75);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .toast {
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .glass-card { border-radius: 0.75rem; }
+}
