@@ -25,7 +25,22 @@ Students earn **Points** and **Badges** for progress, visible on a global **Lead
 
 ---
 
-## 🚀 Quick Setup
+## 🚀 Live Deployment (Render & Supabase)
+
+LearnBridge is optimized for immediate cloud deployment. Follow these 3 steps to go live:
+
+1.  **Preparation:** Ensure your **Supabase** database is running and you have your `DATABASE_URL` ready.
+2.  **Deployment:** Create a free account at [Render.com](https://render.com).
+3.  **One-Click:** Click **"New"** -> **"Blueprint"** and connect your GitHub repository.
+
+Render will automatically read the `render.yaml` file, install your dependencies, and launch your LMS at a public URL (e.g., `https://learnbridge-lms.onrender.com`).
+
+> [!NOTE]
+> Make sure to add your `DATABASE_URL` to the **Environment Variables** in the Render dashboard during the Blueprint setup!
+
+---
+
+## 🛠️ Local Setup
 
 ### 1. Clone the Repository
 ```bash
